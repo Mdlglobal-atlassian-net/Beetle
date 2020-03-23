@@ -2,43 +2,81 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.jlleitschuh.gradle.ktlint'
 apply plugin: 'com.github.dcendents.android-maven'
 
 group = 'com.github.karacca'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion build_version.compile_sdk
+    buildToolsVersion build_version.build_tools
+
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 29
-        versionCode 108
-        versionName "1.0.8"
+        minSdkVersion build_version.min_sdk
+        targetSdkVersion build_version.target_sdk
+        versionCode beetle_version.version_code
+        versionName beetle_version.version_name
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    buildTypes.all {
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    dataBinding {
+        enabled = true
+        enabledForTests = true
     }
 
 }
 
+ktlint {
+    version = versions.ktlint
+    debug = true
+    verbose = true
+    android = true
+    outputToConsole = true
+    disabledRules = ['no-wildcard-imports']
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
+}
+
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.google.android.material:material:1.1.0-alpha08'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
-    implementation 'de.hdodenhof:circleimageview:3.0.0'
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
-    kapt 'com.github.bumptech.glide:compiler:4.9.0'
+    implementation deps.kotlin.stdlib
+    implementation deps.kotlin.coroutinesCore
+    implementation deps.kotlin.coroutinesAndroid
+
+    implementation deps.support.app_compat
+    implementation deps.support.core_ktx
+    implementation deps.support.constraint_layout
+    implementation deps.support.recycler_view
+    implementation deps.support.fragment
+    implementation deps.support.fragment_ktx
+
+    implementation deps.support.lifecycle_extensions
+    implementation deps.support.lifecycle_viewmodel
+    implementation deps.support.lifecycle_runtime
+    implementation deps.support.lifecycle_livedata
+    kapt deps.data_binding
+
+    implementation deps.squareup.retrofit
+    implementation deps.squareup.gson_converter
+    implementation deps.squareup.okhttp
+    implementation deps.squareup.logging_interceptor
+
+    implementation deps.koin.android
+    implementation deps.koin.viewmodel
+    implementation deps.koin.scope
 }

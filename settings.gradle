@@ -1,1 +1,2 @@
-include ':beetle', ':sample'
+include ':sample'
+include ':beetle'
